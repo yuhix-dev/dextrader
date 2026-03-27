@@ -1,180 +1,110 @@
-# Dexter 🤖
+# dextrader
 
-Dexter is an autonomous financial research agent that thinks, plans, and learns as it works. It performs analysis using task planning, self-reflection, and real-time market data. Think Claude Code, but built specifically for financial research.
+日本株に特化した自律型金融リサーチエージェント。複雑な質問を計画・実行・検証のステップに分解し、J-Quants・EDINET・Yahoo Finance のデータを組み合わせてリサーチを行う。
 
-<img width="1098" height="659" alt="Screenshot 2026-01-21 at 5 25 10 PM" src="https://github.com/user-attachments/assets/3bcc3a7f-b68a-4f5e-8735-9d22196ff76e" />
+> [virattt/dexter](https://github.com/virattt/dexter) をフォークして日本株対応に改修。
 
-## Table of Contents
+## データソース
 
-- [👋 Overview](#-overview)
-- [✅ Prerequisites](#-prerequisites)
-- [💻 How to Install](#-how-to-install)
-- [🚀 How to Run](#-how-to-run)
-- [📊 How to Evaluate](#-how-to-evaluate)
-- [🐛 How to Debug](#-how-to-debug)
-- [📱 How to Use with WhatsApp](#-how-to-use-with-whatsapp)
-- [🤝 How to Contribute](#-how-to-contribute)
-- [📄 License](#-license)
+| ソース | 用途 |
+|--------|------|
+| **J-Quants API V2** | 日足OHLCV・決算サマリー・上場銘柄一覧 |
+| **EDINET API v2** | 有価証券報告書・開示書類の検索 |
+| **Yahoo Finance** | リアルタイム株価（J-Quants遅延補完用） |
+| **Exa / Tavily** | ニュース・IR情報のWeb検索 |
 
+## セットアップ
 
-## 👋 Overview
+### 必要なもの
 
-Dexter takes complex financial questions and turns them into clear, step-by-step research plans. It runs those tasks using live market data, checks its own work, and refines the results until it has a confident, data-backed answer.  
+- [Bun](https://bun.com) v1.0 以上
+- J-Quants API キー（[jpx-jquants.com](https://jpx-jquants.com/) で取得）
+- LLM の API キー（OpenAI / Anthropic / Google のいずれか）
+- EDINET API キー（オプション、開示書類検索用）
+- Exa API キー（オプション、Web検索用）
 
-**Key Capabilities:**
-- **Intelligent Task Planning**: Automatically decomposes complex queries into structured research steps
-- **Autonomous Execution**: Selects and executes the right tools to gather financial data
-- **Self-Validation**: Checks its own work and iterates until tasks are complete
-- **Real-Time Financial Data**: Access to income statements, balance sheets, and cash flow statements
-- **Safety Features**: Built-in loop detection and step limits to prevent runaway execution
+### インストール
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt) [![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=social&logo=discord)](https://discord.gg/jpGHv2XB6T)
-
-<img width="1042" height="638" alt="Screenshot 2026-02-18 at 12 21 25 PM" src="https://github.com/user-attachments/assets/2a6334f9-863f-4bd2-a56f-923e42f4711e" />
-
-
-## ✅ Prerequisites
-
-- [Bun](https://bun.com) runtime (v1.0 or higher)
-- OpenAI API key (get [here](https://platform.openai.com/api-keys))
-- Financial Datasets API key (get [here](https://financialdatasets.ai))
-- Exa API key (get [here](https://exa.ai)) - optional, for web search
-
-#### Installing Bun
-
-If you don't have Bun installed, you can install it using curl:
-
-**macOS/Linux:**
 ```bash
-curl -fsSL https://bun.com/install | bash
-```
-
-**Windows:**
-```bash
-powershell -c "irm bun.sh/install.ps1|iex"
-```
-
-After installation, restart your terminal and verify Bun is installed:
-```bash
-bun --version
-```
-
-## 💻 How to Install
-
-1. Clone the repository:
-```bash
-git clone https://github.com/virattt/dexter.git
-cd dexter
-```
-
-2. Install dependencies with Bun:
-```bash
+git clone https://github.com/yuhix-dev/dextrader.git
+cd dextrader
 bun install
 ```
 
-3. Set up your environment variables:
+### 環境変数の設定
+
 ```bash
-# Copy the example environment file
-cp env.example .env
-
-# Edit .env and add your API keys (if using cloud providers)
-# OPENAI_API_KEY=your-openai-api-key
-# ANTHROPIC_API_KEY=your-anthropic-api-key (optional)
-# GOOGLE_API_KEY=your-google-api-key (optional)
-# XAI_API_KEY=your-xai-api-key (optional)
-# OPENROUTER_API_KEY=your-openrouter-api-key (optional)
-
-# Institutional-grade market data for agents; AAPL, NVDA, MSFT are free
-# FINANCIAL_DATASETS_API_KEY=your-financial-datasets-api-key
-
-# (Optional) If using Ollama locally
-# OLLAMA_BASE_URL=http://127.0.0.1:11434
-
-# Web Search (Exa preferred, Tavily fallback)
-# EXASEARCH_API_KEY=your-exa-api-key
-# TAVILY_API_KEY=your-tavily-api-key
+cp .env.example .env
+# .env を編集して各 API キーを入力
 ```
 
-## 🚀 How to Run
+```env
+# J-Quants API V2（必須）
+JQUANTS_API_KEY=your-jquants-api-key
 
-Run Dexter in interactive mode:
+# LLM（いずれか1つ以上必須）
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# EDINET API（オプション）
+EDINET_API_KEY=your-edinet-subscription-key
+
+# Web検索（オプション）
+EXASEARCH_API_KEY=your-exa-api-key
+```
+
+## 使い方
+
 ```bash
+# 起動
 bun start
-```
 
-Or with watch mode for development:
-```bash
+# 開発モード（ファイル変更で自動再起動）
 bun dev
 ```
 
-## 📊 How to Evaluate
+起動後、日本語で質問できます：
 
-Dexter includes an evaluation suite that tests the agent against a dataset of financial questions. Evals use LangSmith for tracking and an LLM-as-judge approach for scoring correctness.
-
-**Run on all questions:**
-```bash
-bun run src/evals/run.ts
+```
+トヨタの直近の決算を分析して
+ソニーの株価推移を過去1年で教えて
+2024年に提出された任天堂の有価証券報告書を探して
 ```
 
-**Run on a random sample of data:**
-```bash
-bun run src/evals/run.ts --sample 10
-```
+## ツール一覧
 
-The eval runner displays a real-time UI showing progress, current question, and running accuracy statistics. Results are logged to LangSmith for analysis.
+`JQUANTS_API_KEY` が設定されている場合に有効になるツール：
 
-## 🐛 How to Debug
+| ツール名 | 説明 |
+|---------|------|
+| `get_japan_stock_list` | 上場銘柄一覧（銘柄名→コード変換にも使用） |
+| `get_japan_daily_prices` | 日足OHLCV・調整済み終値（J-Quants V2） |
+| `get_japan_realtime_price` | 当日リアルタイム株価（Yahoo Finance） |
+| `get_japan_financial_summary` | 決算サマリー（売上高・営業利益・EPS等） |
 
-Dexter logs all tool calls to a scratchpad file for debugging and history tracking. Each query creates a new JSONL file in `.dexter/scratchpad/`.
+`EDINET_API_KEY` が設定されている場合に有効になるツール：
 
-**Scratchpad location:**
+| ツール名 | 説明 |
+|---------|------|
+| `search_edinet_filings` | 有価証券報告書等の書類検索（メタデータ） |
+
+## デバッグ
+
+ツール呼び出しの結果はすべて `.dexter/scratchpad/` に JSONL 形式で記録される。
+
 ```
 .dexter/scratchpad/
 ├── 2026-01-30-111400_9a8f10723f79.jsonl
-├── 2026-01-30-143022_a1b2c3d4e5f6.jsonl
 └── ...
 ```
 
-Each file contains newline-delimited JSON entries tracking:
-- **init**: The original query
-- **tool_result**: Each tool call with arguments, raw result, and LLM summary
-- **thinking**: Agent reasoning steps
+## ロードマップ
 
-**Example scratchpad entry:**
-```json
-{"type":"tool_result","timestamp":"2026-01-30T11:14:05.123Z","toolName":"get_income_statements","args":{"ticker":"AAPL","period":"annual","limit":5},"result":{...},"llmSummary":"Retrieved 5 years of Apple annual income statements showing revenue growth from $274B to $394B"}
-```
+- [x] Phase 1: J-Quants V2・EDINET・Yahoo Finance 対応
+- [ ] Phase 2: EDINET 大量保有報告書パース
+- [ ] Phase 2: バックテスト機能
+- [ ] Phase 3: 証券会社API連携（kabuステーション API）
 
-This makes it easy to inspect exactly what data the agent gathered and how it interpreted results.
+## ライセンス
 
-## 📱 How to Use with WhatsApp
-
-Chat with Dexter through WhatsApp by linking your phone to the gateway. Messages you send to yourself are processed by Dexter and responses are sent back to the same chat.
-
-**Quick start:**
-```bash
-# Link your WhatsApp account (scan QR code)
-bun run gateway:login
-
-# Start the gateway
-bun run gateway
-```
-
-Then open WhatsApp, go to your own chat (message yourself), and ask Dexter a question.
-
-For detailed setup instructions, configuration options, and troubleshooting, see the [WhatsApp Gateway README](src/gateway/channels/whatsapp/README.md).
-
-## 🤝 How to Contribute
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-**Important**: Please keep your pull requests small and focused.  This will make it easier to review and merge.
-
-
-## 📄 License
-
-This project is licensed under the MIT License.
+MIT License

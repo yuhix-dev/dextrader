@@ -1,5 +1,12 @@
 import { StructuredToolInterface } from '@langchain/core/tools';
 import { createGetFinancials, createGetMarketData, createReadFilings, createScreenStocks } from './finance/index.js';
+import {
+  getJapanStockList,
+  getJapanDailyPrices,
+  getJapanRealtimePrice,
+  getJapanFinancialSummary,
+  searchEdinetFilings,
+} from './finance/japan/index.js';
 import { exaSearch, perplexitySearch, tavilySearch, WEB_SEARCH_DESCRIPTION, xSearchTool, X_SEARCH_DESCRIPTION } from './search/index.js';
 import { skillTool, SKILL_TOOL_DESCRIPTION } from './skill.js';
 import { webFetchTool, WEB_FETCH_DESCRIPTION } from './fetch/web-fetch.js';
@@ -108,6 +115,25 @@ export function getToolRegistry(model: string): RegisteredTool[] {
       description: MEMORY_UPDATE_DESCRIPTION,
     },
   ];
+
+  // J-Quants API が設定されている場合は日本株ツールを登録
+  if (process.env.JQUANTS_API_KEY) {
+    tools.push(
+      { name: 'get_japan_stock_list', tool: getJapanStockList, description: '東証上場銘柄の一覧を取得する。銘柄名からコードを調べたり、業種・市場で絞り込む際に使用する。' },
+      { name: 'get_japan_daily_prices', tool: getJapanDailyPrices, description: '日本株の日足OHLCV（始値・高値・安値・終値・出来高）と調整済み終値を取得する（J-Quants V2）。' },
+      { name: 'get_japan_realtime_price', tool: getJapanRealtimePrice, description: '日本株の当日リアルタイム株価を取得する（Yahoo Finance経由）。J-Quantsの遅延を補完する。' },
+      { name: 'get_japan_financial_summary', tool: getJapanFinancialSummary, description: '日本株の決算サマリー（売上高・営業利益・経常利益・当期純利益・EPS）を取得する（J-Quants V2）。' },
+    );
+  }
+
+  // EDINET API が設定されている場合は開示書類検索ツールを登録
+  if (process.env.EDINET_API_KEY) {
+    tools.push({
+      name: 'search_edinet_filings',
+      tool: searchEdinetFilings,
+      description: 'EDINETで特定日に提出された有価証券報告書等の書類一覧（メタデータ）を検索する。',
+    });
+  }
 
   // Include web_search if Exa, Perplexity, or Tavily API key is configured (Exa → Perplexity → Tavily)
   if (process.env.EXASEARCH_API_KEY) {
