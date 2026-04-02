@@ -1,5 +1,11 @@
 # Repository Guidelines
 
+This repository uses `~/.ai-harness/AGENTS.md` as the shared base.
+Apply the shared harness rules first, then treat this file as the dexter-specific override.
+If `.ai-harness/` exists in this repository, treat it as the local harness override layer after this file.
+
+If a project-local ignored file such as `AGENTS.dev.md` exists, read it after this file and never commit its contents.
+
 - Repo: https://github.com/virattt/dexter
 - Dexter is a CLI-based AI agent for deep financial research, built with TypeScript, Ink (React for CLI), and LangChain.
 
