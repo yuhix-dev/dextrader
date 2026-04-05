@@ -10,3 +10,9 @@ Before making code changes:
 3. Never commit the contents of local-only maintainer files
 
 Dexter-specific implementation, tool, and runtime guidance lives in `AGENTS.md`.
+
+Harness operations in this repository:
+- Rules: `.claude/rules/`
+- Skills: `.claude/skills/`
+- Hooks: `.claude/hooks/`
+- Progress artifact: `.ai-harness/claude-progress.txt`

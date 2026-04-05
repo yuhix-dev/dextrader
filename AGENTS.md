@@ -6,6 +6,12 @@ If `.ai-harness/` exists in this repository, treat it as the local harness overr
 
 If a project-local ignored file such as `AGENTS.dev.md` exists, read it after this file and never commit its contents.
 
+Harness operations in this repository:
+- Rules: `.claude/rules/`
+- Skills: `.claude/skills/`
+- Hooks: `.claude/hooks/`
+- Progress artifact: `.ai-harness/claude-progress.txt`
+
 - Repo: https://github.com/virattt/dexter
 - Dexter is a CLI-based AI agent for deep financial research, built with TypeScript, Ink (React for CLI), and LangChain.
 
