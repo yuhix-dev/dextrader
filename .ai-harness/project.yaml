@@ -1,0 +1,20 @@
+name: dexter
+language:
+  - typescript
+main_commands:
+  - bun run typecheck
+  - bun test
+constraints:
+  - use bun for runtime and scripts
+  - never commit API keys or local config
+  - keep documentation changes opt-in unless requested
+entry_docs:
+  - .ai-harness/docs/index.md
+  - AGENTS.md
+  - CLAUDE.md
+overrides:
+  docs: true
+  prompts: true
+  runbooks: true
+  hooks: true
+  memories: true
